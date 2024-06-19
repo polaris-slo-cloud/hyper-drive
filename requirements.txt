@@ -14,14 +14,12 @@ networkx==3.3
 numpy==1.26.4
 packaging==24.1
 pandas==2.2.2
-paramiko==3.4.0
 pillow==10.3.0
 pycparser==2.22
 PyNaCl==1.5.0
 pyparsing==3.1.2
 python-dateutil==2.9.0.post0
 pytz==2024.1
-requests==2.32.3
 scipy==1.13.1
 setuptools==70.0.0
 sgp4==2.23
