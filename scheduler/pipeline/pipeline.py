@@ -2,12 +2,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
 from scheduler.model import AvailableNodesIndexed, Node, NodeScore, Task, Workflow
-from starrynet.starrynet.sn_synchronizer import StarryNet
+from scheduler.orchestrator import OrchestratorClient
 
 @dataclass
 class SchedulingContext:
     workflow: Optional[Workflow]
-    sn: StarryNet
+    orchestrator: OrchestratorClient
 
 
 class SelectCandidateNodesPlugin(ABC):
@@ -36,7 +36,7 @@ class FilterPlugin(ABC):
         pass
 
 
-class ScorePlugin:
+class ScorePlugin(ABC):
     '''
     Plugin to determine how well suited an eligible node is for a task by assigning a score.
 

@@ -1,9 +1,9 @@
 
 from dataclasses import dataclass
 from scheduler.model import AvailableNodes, AvailableNodesIndexed, Node, NodeScore, Task, Workflow
+from scheduler.orchestrator import OrchestratorClient
 from scheduler.pipeline import FilterPlugin, SchedulingContext, ScorePlugin, SelectCandidateNodesPlugin
 from scheduler.util import Timer, index_nodes
-from starrynet.starrynet.sn_synchronizer import StarryNet
 
 @dataclass
 class SchedulingResult:
@@ -20,7 +20,7 @@ class SchedulerConfig:
     select_candidate_nodes_plugin: SelectCandidateNodesPlugin
     filter_plugins: list[FilterPlugin]
     score_plugins: list[ScorePlugin]
-    starry_net: StarryNet
+    orchestrator_client: OrchestratorClient
 
 
 @dataclass
@@ -35,7 +35,7 @@ class Scheduler:
         self.__select_candidate_nodes_plugin = config.select_candidate_nodes_plugin
         self.__filter_plugins = config.filter_plugins
         self.__score_plugins = config.score_plugins
-        self.__sn = config.starry_net
+        self.__orchestrator = config.orchestrator_client
 
         self.__avail_nodes = AvailableNodesIndexed(
             cloud_nodes=index_nodes(nodes.cloud_nodes),
@@ -48,7 +48,7 @@ class Scheduler:
     def schedule(self, task: Task, workflow: Workflow) -> SchedulingResult:
         timer = Timer()
         timer.start()
-        ctx = SchedulingContext(workflow=workflow, sn=self.__sn)
+        ctx = SchedulingContext(workflow=workflow, orchestrator=self.__orchestrator)
 
         candidate_nodes = self.__select_candidate_nodes_plugin.select_candidates(task, self.__avail_nodes, ctx)
         if candidate_nodes is not None:
