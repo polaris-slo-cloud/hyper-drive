@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
 from scheduler.model import AvailableNodesIndexed, Node, NodeScore, Task, Workflow
 from scheduler.orchestrator import OrchestratorClient
 
 @dataclass
 class SchedulingContext:
-    workflow: Optional[Workflow]
+    workflow: Workflow
     orchestrator: OrchestratorClient
 
 

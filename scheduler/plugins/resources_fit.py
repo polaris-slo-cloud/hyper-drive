@@ -5,7 +5,7 @@ from scheduler.pipeline import FilterPlugin, SchedulingContext
 class ResourcesFitPlugin(FilterPlugin):
 
     def filter(self, node: Node, task: Task, ctx: SchedulingContext) -> bool:
-        if node.cpu_arch != task.cpu_arch:
+        if node.cpu_arch in task.cpu_architectures:
             return False
 
         for key, req_qty in task.req_resources.items():
@@ -13,4 +13,3 @@ class ResourcesFitPlugin(FilterPlugin):
             if available_qty is None or available_qty < req_qty:
                 return False
         return True
-

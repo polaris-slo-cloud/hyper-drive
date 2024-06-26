@@ -1,20 +1,7 @@
 from dataclasses import dataclass
-from enum import Enum
 from typing import Optional
 import uuid
-
-MILLI_CPU = 'milliCpu'
-MEMORY_MIB = 'memoryMiB'
-
-BATTERY_MAH = 'batteryMAh'
-'''The remaining battery charge in mAh.'''
-
-RECHARGE_CAPACITY_WATTS = 'rechargeCapWatts'
-'''The recharge capacity of the satellite's solar panels.'''
-
-class CpuArchitecture(Enum):
-    INTEL64 = 'x86_64'
-    ARM64 = 'arm64'
+from .resources import CpuArchitecture, ResourceType
 
 @dataclass
 class Location:
@@ -35,7 +22,7 @@ class Node:
     Describes a general purpose compute node.
     '''
 
-    def __init__(self, name: str, resources: dict[str, int], cpu_arch: CpuArchitecture):
+    def __init__(self, name: str, resources: dict[ResourceType, int], cpu_arch: CpuArchitecture):
         if name is None:
             name = str(uuid.uuid4())
         self.name = name
@@ -46,26 +33,30 @@ class Node:
         if resources is None:
             resources = {}
         self.resources = resources
-        '''All available resources of this node.'''
+        '''
+        All available resources of this node.
+
+        See the ResourceType enum for a list of available resource types.
+        '''
 
         self.capacity = resources.copy()
         '''The total resource capacity of the node (free + used).'''
 
     @property
     def milli_cpu(self) -> int:
-        return self.resources[MILLI_CPU]
+        return self.resources[ResourceType.MILLI_CPU]
 
     @milli_cpu.setter
     def set_milli_cpu(self, mcpu: int):
-        self.resources[MILLI_CPU] = mcpu
+        self.resources[ResourceType.MILLI_CPU] = mcpu
 
     @property
     def memory_mib(self) -> int:
-        return self.resources[MEMORY_MIB]
+        return self.resources[ResourceType.MEMORY_MIB]
 
     @memory_mib.setter
     def set_memory_mib(self, memory_mib: int):
-        self.resources[MEMORY_MIB] = memory_mib
+        self.resources[ResourceType.MEMORY_MIB] = memory_mib
 
 
 
@@ -74,7 +65,7 @@ class TerrestrialNode(Node):
     A Node located on Earth.
     '''
 
-    def __init__(self, name: str, resources: dict[str, int], cpu_arch: CpuArchitecture, loc: Optional[Location] = None):
+    def __init__(self, name: str, resources: dict[ResourceType, int], cpu_arch: CpuArchitecture, loc: Optional[Location] = None):
         super().__init__(name=name, resources=resources, cpu_arch=cpu_arch)
         self.location = loc
 
@@ -93,7 +84,7 @@ class EdgeNode(TerrestrialNode):
 
 class SatelliteNode(Node):
 
-    def __init__(self, name: str, resources: dict[str, int], cpu_arch: CpuArchitecture):
+    def __init__(self, name: str, resources: dict[ResourceType, int], cpu_arch: CpuArchitecture):
         super().__init__(name=name, resources=resources, cpu_arch=cpu_arch)
 
 
