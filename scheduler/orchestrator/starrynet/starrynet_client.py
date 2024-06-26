@@ -14,5 +14,5 @@ class StarryNetClient(OrchestratorClient):
         return self.__nodes_mgr.get_node_by_name(name)
 
     def get_latency(self, src: Node, dest: Node) -> float:
-        return self.__sn.get_delay(src, dest, self.__time_svc.curr_time)
+        return self.__sn.get_delay(int(src.name), int(dest.name), self.__time_svc.curr_time)
 

@@ -5,9 +5,6 @@ from .node import Node
 from .slos import DataSourceSLO, NetworkSLO
 from .task import Task
 
-__NETWORK_SLO = 'network-slo'
-'''The key for the network SLO on an edge in the workflow DAG.'''
-
 @dataclass
 class PredecessorConfig:
     predecessor: Task
@@ -69,7 +66,7 @@ class Workflow:
         edge_data = self.dag.get_edge_data(task_u, task_v)
         if edge_data is None:
             raise ValueError(f'The link ({task_u.name}, {task_v.name}) does not exist.')
-        return cast(NetworkSLO, edge_data[__NETWORK_SLO])
+        return cast(NetworkSLO, edge_data['__NETWORK_SLO'])
 
 
     def get_successors(self, task: Task) -> list[Task]:
@@ -79,7 +76,7 @@ class Workflow:
         return successors
 
 
-    def incoming_link_slos(self, task: Task) -> Generator[tuple[NetworkSLO, Task, Node | None]]:
+    def incoming_link_slos(self, task: Task) -> Generator[tuple[NetworkSLO, Task, Node | None], None, None]:
         '''
         Allows iterating over all incoming task link network SLOs for the specified task.
 
@@ -95,7 +92,7 @@ class Workflow:
                 yield slo, pred, self.scheduled_tasks.get(pred)
 
 
-    def all_incoming_slos(self, task: Task) -> Generator[tuple[NetworkSLO, Node]]:
+    def all_incoming_slos(self, task: Task) -> Generator[tuple[NetworkSLO, Node], None, None]:
         '''
         Allows iterating over all incoming network SLOs for the specified task, including DataSourceSLOs.
 

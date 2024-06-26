@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, cast
 from .resources import CpuArchitecture, ResourceType
 from .slos import DataSourceSLO
 
@@ -48,3 +48,27 @@ class Task:
 
     def __hash__(self) -> int:
         return self.name.__hash__();
+
+
+    def __eq__(self, value: object) -> bool:
+        if self is value:
+            return True
+        if type(value) != type(self):
+            return False
+
+        other = cast(Task, value)
+        if self.name != other.name:
+            return False
+        if self.image != other.image:
+            return False
+        if self.req_resources != other.req_resources:
+            return False
+        if self.cpu_architectures != other.cpu_architectures:
+            return False
+        if self.data_source_slos != other.data_source_slos:
+            return False
+        return True
+
+
+    def __ne__(self, value: object) -> bool:
+        return not self.__eq__(value)

@@ -5,7 +5,7 @@ from scheduler.pipeline import FilterPlugin, SchedulingContext
 class ResourcesFitPlugin(FilterPlugin):
 
     def filter(self, node: Node, task: Task, ctx: SchedulingContext) -> bool:
-        if node.cpu_arch in task.cpu_architectures:
+        if task.cpu_architectures and task.cpu_architectures.count(node.cpu_arch) == 0:
             return False
 
         for key, req_qty in task.req_resources.items():

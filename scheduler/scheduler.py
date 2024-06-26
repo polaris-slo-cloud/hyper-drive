@@ -10,6 +10,7 @@ class SchedulingResult:
     success: bool
     task: str
     scheduling_duration_msec: int
+    failure_reason: str | None = None
     target_node_type: str | None = None
     target_node: str | None = None
     score: int | None = None
@@ -46,25 +47,33 @@ class Scheduler:
 
 
     def schedule(self, task: Task, workflow: Workflow) -> SchedulingResult:
+        '''
+        Schedules the specified task of the workflow on the most suitable node.
+        '''
         timer = Timer()
         timer.start()
         ctx = SchedulingContext(workflow=workflow, orchestrator=self.__orchestrator)
 
+        def scheduling_failure(reason: str) -> SchedulingResult:
+            timer.stop()
+            workflow.scheduled_tasks[task] = None
+            return SchedulingResult(success=False, task=task.name, scheduling_duration_msec=timer.duration_ms(), failure_reason=reason)
+
         candidate_nodes = self.__select_candidate_nodes_plugin.select_candidates(task, self.__avail_nodes, ctx)
         if candidate_nodes is not None:
+            if len(candidate_nodes) == 0:
+                return scheduling_failure('No candidate nodes')
             eligible_nodes = self.__filter_nodes(task, ctx, candidate_nodes, [])
         else:
             eligible_nodes = self.__filter_default_nodes(task, ctx)
 
+        if len(eligible_nodes) == 0:
+            return scheduling_failure('Filtering returned no eligible nodes')
+
         self.__score_nodes(task, ctx, eligible_nodes)
 
-        if len(eligible_nodes) == 0:
-            timer.stop()
-            workflow.scheduled_tasks[task] = None
-            return SchedulingResult(success=False, task=task.name, scheduling_duration_msec=timer.duration_ms())
-
         target_node = eligible_nodes[0]
-        self.__commit_decision(task, target_node, workflow)
+        self.__commit_decision(task, target_node.node, workflow)
 
         timer.stop()
         return SchedulingResult(
@@ -73,6 +82,22 @@ class Scheduler:
             target_node=target_node.node.name,
             target_node_type=type(target_node).__name__,
             score=target_node.score,
+            scheduling_duration_msec=timer.duration_ms(),
+        )
+
+
+    def force_schedule(self, task: Task, workflow: Workflow, target_node: Node) -> SchedulingResult:
+        '''
+        Assigns the specified task to the target_node. This can be used to set up a starting point for an experiment,
+        where a part of the workflow is already executing.
+        '''
+        self.__commit_decision(task, target_node, workflow)
+        return SchedulingResult(
+            success=True,
+            task=task.name,
+            target_node=target_node.name,
+            target_node_type=type(target_node).__name__,
+            score=100,
             scheduling_duration_msec=0,
         )
 
@@ -122,9 +147,9 @@ class Scheduler:
             node.score += node_scores[i].score
 
 
-    def __commit_decision(self, task: Task, target_node: EligibleNode, workflow: Workflow | None):
+    def __commit_decision(self, task: Task, target_node: Node, workflow: Workflow | None):
         if workflow is not None:
-            workflow.scheduled_tasks[task] = target_node.node
+            workflow.scheduled_tasks[task] = target_node
 
         for key, req in task.req_resources.items():
-            target_node.node.resources[key] -= req
+            target_node.resources[key] -= req
