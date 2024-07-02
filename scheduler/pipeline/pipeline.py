@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from scheduler.model import AvailableNodesIndexed, Node, NodeScore, Task, Workflow
+from scheduler.model import AvailableNodesIndexed, Node, EligibleNode, Task, Workflow
 from scheduler.orchestrator import OrchestratorClient
 
 @dataclass
@@ -53,6 +53,22 @@ class ScorePlugin(ABC):
         pass
 
 
-    def normalize_scores(self, task: Task, node_scores: list[NodeScore], ctx: SchedulingContext):
+    def normalize_scores(self, task: Task, node_scores: list[EligibleNode], ctx: SchedulingContext):
         '''Optional method that normalizes the node scores (in place) to the range [0, 100].'''
+        pass
+
+
+class CommitPlugin(ABC):
+    '''
+    Plugin to assign the task to the most suitable node in the orchestrator.
+    '''
+
+    @abstractmethod
+    def commit(self, task: Task, scored_nodes: list[EligibleNode], ctx: SchedulingContext) -> EligibleNode | None:
+        '''
+        Assigns the task to the most suitable node in the orchestrator. If this is not possible, another node
+        may be selected from the list of scored_nodes, which is sorted from highest to lowest score.
+
+        Returns the node to which the task was assigned or None, if not assignment was possible.
+        '''
         pass

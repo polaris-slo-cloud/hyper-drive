@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from scheduler.model import Node
+from scheduler.model import Node, Task
 
 class OrchestratorClient(ABC):
     '''Provides access to the underlying orchestrator.'''
@@ -12,5 +12,10 @@ class OrchestratorClient(ABC):
     @abstractmethod
     def get_latency(self, src: Node, dest: Node) -> float:
         '''Gets the current latency in ms between the src node and the dest node.'''
+        pass
+
+    @abstractmethod
+    def assign_task(self, task: Task, target_node: Node) -> bool:
+        '''Assigns the task to the target node if enough resources are available.'''
         pass
 

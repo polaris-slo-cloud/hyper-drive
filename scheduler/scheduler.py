@@ -1,8 +1,8 @@
 
 from dataclasses import dataclass
-from scheduler.model import AvailableNodes, AvailableNodesIndexed, Node, NodeScore, Task, Workflow
+from scheduler.model import AvailableNodes, AvailableNodesIndexed, Node, EligibleNode, Task, Workflow
 from scheduler.orchestrator import OrchestratorClient
-from scheduler.pipeline import FilterPlugin, SchedulingContext, ScorePlugin, SelectCandidateNodesPlugin
+from scheduler.pipeline import CommitPlugin, FilterPlugin, SchedulingContext, ScorePlugin, SelectCandidateNodesPlugin
 from scheduler.util import Timer, index_nodes
 
 @dataclass
@@ -21,13 +21,8 @@ class SchedulerConfig:
     select_candidate_nodes_plugin: SelectCandidateNodesPlugin
     filter_plugins: list[FilterPlugin]
     score_plugins: list[ScorePlugin]
+    commit_plugin: CommitPlugin
     orchestrator_client: OrchestratorClient
-
-
-@dataclass
-class EligibleNode:
-    node: Node
-    score: int
 
 
 class Scheduler:
@@ -36,6 +31,7 @@ class Scheduler:
         self.__select_candidate_nodes_plugin = config.select_candidate_nodes_plugin
         self.__filter_plugins = config.filter_plugins
         self.__score_plugins = config.score_plugins
+        self.__commit_plugin = config.commit_plugin
         self.__orchestrator = config.orchestrator_client
 
         self.__avail_nodes = AvailableNodesIndexed(
@@ -72,8 +68,9 @@ class Scheduler:
 
         self.__score_nodes(task, ctx, eligible_nodes)
 
-        target_node = eligible_nodes[0]
-        self.__commit_decision(task, target_node.node, workflow)
+        target_node = self.__commit_task(task, eligible_nodes, workflow, ctx)
+        if target_node is None:
+            return scheduling_failure(f'Could not commit task {task.name} due to scheduling conflicts.')
 
         timer.stop()
         return SchedulingResult(
@@ -91,7 +88,11 @@ class Scheduler:
         Assigns the specified task to the target_node. This can be used to set up a starting point for an experiment,
         where a part of the workflow is already executing.
         '''
-        self.__commit_decision(task, target_node, workflow)
+        ctx = SchedulingContext(workflow=workflow, orchestrator=self.__orchestrator)
+        target = [ EligibleNode(node=target_node, score=100) ]
+        if self.__commit_task(task, target, workflow, ctx) is None:
+            raise SystemError(f'Could not force schedule task {task.name} to node {target_node.name}.')
+
         return SchedulingResult(
             success=True,
             task=task.name,
@@ -137,19 +138,21 @@ class Scheduler:
 
     def __run_score_plugin(self, score_plugin: ScorePlugin, task: Task, ctx: SchedulingContext, eligible_nodes: list[EligibleNode]):
         '''Runs the score plugin and adds its score to each node.'''
-        node_scores: list[NodeScore] = []
+        node_scores: list[EligibleNode] = []
         for node in eligible_nodes:
             score = score_plugin.score(node.node, task, ctx)
-            node_scores.append(NodeScore(node.node, score))
+            node_scores.append(EligibleNode(node.node, score))
 
         score_plugin.normalize_scores(task, node_scores, ctx)
         for i, node in enumerate(eligible_nodes):
             node.score += node_scores[i].score
 
 
-    def __commit_decision(self, task: Task, target_node: Node, workflow: Workflow | None):
-        if workflow is not None:
-            workflow.scheduled_tasks[task] = target_node
+    def __commit_task(self, task: Task, scored_nodes: list[EligibleNode], workflow: Workflow | None, ctx: SchedulingContext) -> EligibleNode | None:
+        committed_node = self.__commit_plugin.commit(task, scored_nodes, ctx)
+        if committed_node is None:
+            return None
 
-        for key, req in task.req_resources.items():
-            target_node.resources[key] -= req
+        if workflow is not None:
+            workflow.scheduled_tasks[task] = committed_node.node
+        return committed_node

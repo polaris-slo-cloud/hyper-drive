@@ -1,4 +1,4 @@
-from scheduler.model import Node
+from scheduler.model import Node, Task
 from scheduler.orchestrator import NodesManager, OrchestratorClient
 from scheduler.orchestrator.starrynet.starrynet_time_svc import StarryNetTimeService
 from starrynet.starrynet.sn_synchronizer import StarryNet
@@ -16,3 +16,5 @@ class StarryNetClient(OrchestratorClient):
     def get_latency(self, src: Node, dest: Node) -> float:
         return self.__sn.get_delay(int(src.name), int(dest.name), self.__time_svc.curr_time)
 
+    def assign_task(self, task: Task, target_node: Node) -> bool:
+        return self.__nodes_mgr.assign_task(task, target_node)

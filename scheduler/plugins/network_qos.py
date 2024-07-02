@@ -1,5 +1,5 @@
 import math
-from scheduler.model import Node, NodeScore, Task
+from scheduler.model import Node, EligibleNode, Task
 from scheduler.pipeline import FilterPlugin, SchedulingContext, ScorePlugin
 
 class NetworkQosPlugin(FilterPlugin, ScorePlugin):
@@ -21,7 +21,7 @@ class NetworkQosPlugin(FilterPlugin, ScorePlugin):
         return int(round(highest_latency, 0))
 
 
-    def normalize_scores(self, task: Task, node_scores: list[NodeScore], ctx: SchedulingContext):
+    def normalize_scores(self, task: Task, node_scores: list[EligibleNode], ctx: SchedulingContext):
         '''
         Normalizes the scores to the range [0; 100] using the following procedure:
         1. Compute max_diff = the difference between the lowest and the highest latency

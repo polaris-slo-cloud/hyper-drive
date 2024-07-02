@@ -1,5 +1,5 @@
 
-from scheduler.model.node import AvailableNodes, AvailableNodesIndexed, Node
+from scheduler.model import AvailableNodes, AvailableNodesIndexed, Node, Task
 from scheduler.util import index_nodes
 
 class NodesManager:
@@ -29,3 +29,18 @@ class NodesManager:
             return node
 
         return self.all_nodes.cloud_nodes.get(name)
+
+
+    def assign_task(self, task: Task, target_node: Node) -> bool:
+        '''Assigns the task to the target node if enough resources are available.'''
+
+        # Check if the resources are available.
+        for key, req_qty in task.req_resources.items():
+            available_qty = target_node.resources.get(key, None)
+            if available_qty is None or available_qty < req_qty:
+                return False
+
+        # Assign the resources:
+        for key, req in task.req_resources.items():
+            target_node.resources[key] -= req
+        return True

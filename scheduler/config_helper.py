@@ -1,6 +1,6 @@
 from scheduler.model import AvailableNodes, CpuArchitecture, GroundStationNode, Location, ResourceType, SatelliteNode
-from scheduler.pipeline import FilterPlugin, ScorePlugin, SelectCandidateNodesPlugin
-from scheduler.plugins import NetworkQosPlugin, ResourcesFitPlugin, SelectNodesInVicinityPlugin
+from scheduler.pipeline import CommitPlugin, FilterPlugin, ScorePlugin, SelectCandidateNodesPlugin
+from scheduler.plugins import MultiCommitPlugin, NetworkQosPlugin, ResourcesFitPlugin, SelectNodesInVicinityPlugin
 
 def create_default_candidate_nodes_plugin() -> SelectCandidateNodesPlugin:
     return SelectNodesInVicinityPlugin()
@@ -17,6 +17,10 @@ def create_default_score_plugins() -> list[ScorePlugin]:
     return [
         NetworkQosPlugin(),
     ]
+
+
+def create_default_commit_plugin() -> CommitPlugin:
+    return MultiCommitPlugin()
 
 
 def create_satellites(start_id: int, count: int, resources: dict[ResourceType, int]) -> list[SatelliteNode]:

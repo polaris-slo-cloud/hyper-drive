@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from scheduler.model import AvailableNodes
 from scheduler.orchestrator import NodesManager
 from scheduler.orchestrator.starrynet import StarryNetClient, StarryNetTimeService
-from scheduler import create_nodes, create_default_candidate_nodes_plugin, create_default_filter_plugins, create_default_score_plugins, Scheduler, SchedulerConfig
+from scheduler import create_nodes, create_default_candidate_nodes_plugin, create_default_commit_plugin, create_default_filter_plugins, create_default_score_plugins, Scheduler, SchedulerConfig
 from starrynet.starrynet.sn_synchronizer import StarryNet
 
 @dataclass
@@ -29,6 +29,7 @@ def init_experiment(config_path: str, gs_locations_lat_long: list[tuple[float, f
             select_candidate_nodes_plugin=create_default_candidate_nodes_plugin(),
             filter_plugins=create_default_filter_plugins(),
             score_plugins=create_default_score_plugins(),
+            commit_plugin=create_default_commit_plugin(),
             orchestrator_client=orch_client,
         ),
         nodes

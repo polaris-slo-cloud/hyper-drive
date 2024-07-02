@@ -105,6 +105,7 @@ class AvailableNodesIndexed:
 
 
 @dataclass
-class NodeScore:
+class EligibleNode:
+    '''A node that has passed the Filter stage and that is eligible for hosting the task.'''
     node: Node
     score: int
