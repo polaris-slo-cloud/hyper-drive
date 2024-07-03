@@ -11,7 +11,10 @@ class OrchestratorClient(ABC):
 
     @abstractmethod
     def get_latency(self, src: Node, dest: Node) -> float:
-        '''Gets the current latency in ms between the src node and the dest node.'''
+        '''
+        Gets the current latency in ms between the src node and the dest node.
+        If there is no path between src and dest, -1 is returned.
+        '''
         pass
 
     @abstractmethod

@@ -8,7 +8,7 @@ class NetworkQosPlugin(FilterPlugin, ScorePlugin):
         for slo, src_node in ctx.workflow.all_incoming_slos(task):
             if slo.max_latency_msec is not None:
                 latency = round(ctx.orchestrator.get_latency(src_node, node), 0)
-                if latency > slo.max_latency_msec:
+                if latency > slo.max_latency_msec or latency == -1:
                     return False
         return True
 
