@@ -4,24 +4,29 @@ from scheduler import SchedulingResult
 
 
 def run_experiment(path_to_scenario_dir: str = '.'):
-    # Starlink 5*5: 25 satellite nodes, 2 ground stations.
-    # The node index sequence is: 25 satellites, 2 ground stations.
-    # In this example, 25 satellites and 2 ground stations are one AS.
+    # The configuration file has 72 Starlink orbital planes configured.
+    # The total number of satellites is 72 * sats_per_orbit.
 
+    # Locations of the explicitly configured edge nodes.
+    # The locations of the rest up to edge_nodes_count is placed randomly within the edge_nodes_location_bounds.
     edge_lat_long = [
         (39.493917, -122.981303), # Drone flying over Mendocino National Forest in California, USA, an area prone to wildfires (https://www.capradio.org/articles/2022/12/15/new-wildfire-risk-map-suggests-california-communities-increasingly-vulnerable/).
     ]
+
+    # Locations of the explicitly configured ground station nodes.
+    # The locations of the rest up to gs_nodes_count is placed randomly within the gs_nodes_location_bounds.
     gs_lat_long = [
         (50.002352, 5.148141), # ESA ground station in Redu, Belgium (part of Estrack core network: https://www.esa.int/Enabling_Support/Operations/ESA_Ground_Stations/Estrack_ESA_s_global_ground_station_network)
         (32.500649, -106.608803), # NASA ground station in White Sands, New Mexico, USA (part of NASA's Near Space network: https://www.nasa.gov/technology/space-comms/near-space-network-complexes/)
     ]
+
     config_file_path = f'{path_to_scenario_dir}/config.json'
     exp_helper = ExperimentHelper()
     experiment = exp_helper.init_experiment(
         config_path=config_file_path,
-        sats_per_orbit=14,
-        edge_nodes_count=1000,
-        gs_nodes_count=1000,
+        sats_per_orbit=5,
+        edge_nodes_count=5,
+        gs_nodes_count=5,
         gs_locations_lat_long=gs_lat_long,
         edge_node_locations_lat_long=edge_lat_long,
         edge_nodes_location_bounds=((41.990495, -124.218537), (32.729169, -114.613391)),
