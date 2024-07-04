@@ -5,8 +5,8 @@ from .node import Node
 class NetworkSLO:
     '''Defines a network SLO for an incoming connection to a Task.'''
 
-    min_bandwidth_kpbs: int | None
-    max_latency_msec: int | None
+    min_bandwidth_kpbs: float | None
+    max_latency_msec: float | None
 
 
 @dataclass

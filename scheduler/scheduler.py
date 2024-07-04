@@ -14,6 +14,10 @@ class SchedulingResult:
     target_node_type: str | None = None
     target_node: str | None = None
     score: int | None = None
+    avg_pred_latency_slo: float | None = None
+    avg_pred_latency: float | None = None
+    avg_data_latency_slo: float | None = None
+    avg_data_latency: float | None = None
 
 
 @dataclass
@@ -23,6 +27,14 @@ class SchedulerConfig:
     score_plugins: list[ScorePlugin]
     commit_plugin: CommitPlugin
     orchestrator_client: OrchestratorClient
+
+
+@dataclass
+class _TaskLatencies:
+    avg_pred_latency_slo: float | None = None
+    avg_pred_latency: float | None = None
+    avg_data_latency_slo: float | None = None
+    avg_data_latency: float | None = None
 
 
 class Scheduler:
@@ -71,15 +83,21 @@ class Scheduler:
         target_node = self.__commit_task(task, eligible_nodes, workflow, ctx)
         if target_node is None:
             return scheduling_failure(f'Could not commit task {task.name} due to scheduling conflicts.')
-
         timer.stop()
+
+        latencies = self.__compute_latencies(task, target_node.node, ctx)
+
         return SchedulingResult(
             success=True,
             task=task.name,
             target_node=target_node.node.name,
-            target_node_type=type(target_node).__name__,
+            target_node_type=type(target_node.node).__name__,
             score=target_node.score,
             scheduling_duration_msec=timer.duration_ms(),
+            avg_pred_latency=latencies.avg_pred_latency,
+            avg_pred_latency_slo=latencies.avg_pred_latency_slo,
+            avg_data_latency=latencies.avg_data_latency,
+            avg_data_latency_slo=latencies.avg_data_latency_slo,
         )
 
 
@@ -156,3 +174,43 @@ class Scheduler:
         if workflow is not None:
             workflow.scheduled_tasks[task] = committed_node.node
         return committed_node
+
+
+    def __compute_latencies(self, task: Task, target_node: Node, ctx: SchedulingContext) -> _TaskLatencies:
+        avg_preds_latency: float | None = 0.0
+        avg_preds_latency_slo: float | None = 0.0
+        pred_count = 0
+        for slo, pred_task, pred_node in ctx.workflow.incoming_link_slos(task):
+            if not pred_node:
+                raise SystemError(f'Predecessor task {pred_task.name} has not been scheduled.')
+            if slo.max_latency_msec is not None:
+                avg_preds_latency_slo += slo.max_latency_msec
+                avg_preds_latency += ctx.orchestrator.get_latency(pred_node, target_node)
+                pred_count += 1
+        if pred_count > 0:
+            avg_preds_latency /= float(pred_count)
+            avg_preds_latency_slo /= float(pred_count)
+        else:
+            avg_preds_latency = None
+            avg_preds_latency_slo = None
+
+        avg_data_latency: float | None = 0.0
+        avg_data_latency_slo: float | None = 0.0
+        for slo in task.data_source_slos:
+            if slo.max_latency_msec is not None:
+                avg_data_latency += ctx.orchestrator.get_latency(slo.data_source, target_node)
+                avg_data_latency_slo += slo.max_latency_msec
+        data_slos_count = float(len(task.data_source_slos))
+        if data_slos_count > 0:
+            avg_data_latency /= data_slos_count
+            avg_data_latency_slo /= data_slos_count
+        else:
+            avg_data_latency = None
+            avg_data_latency_slo = None
+
+        return _TaskLatencies(
+            avg_pred_latency=avg_preds_latency,
+            avg_pred_latency_slo=avg_preds_latency_slo,
+            avg_data_latency=avg_data_latency,
+            avg_data_latency_slo=avg_data_latency_slo,
+        )
