@@ -52,8 +52,8 @@ def create_wildfire_detection_wf(eo_sat_node: Node) -> Workflow:
             DataSourceSLO(data_source=eo_sat_node, max_latency_msec=80, min_bandwidth_kpbs=None)
         ],
         expected_exec_time_msec={
-            CpuArchitecture.ARM64: 180000,
-            CpuArchitecture.INTEL64: 170000,
+            CpuArchitecture.ARM64: 600000,
+            CpuArchitecture.INTEL64: 500000,
         },
     )
     object_det_pred_conf = PredecessorConfig(
