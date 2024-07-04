@@ -1,3 +1,4 @@
+from .heat_opt import *
 from .multi_commit import *
 from .network_qos import *
 from .resources_fit import *

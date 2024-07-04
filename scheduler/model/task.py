@@ -14,6 +14,7 @@ class Task:
             req_resources: dict[ResourceType, int],
             cpu_archs: list[CpuArchitecture],
             data_source_slos: Sequence[DataSourceSLO] | None,
+            expected_exec_time_msec: dict[CpuArchitecture, int] | None,
         ):
         if name is None or name == '':
             raise ValueError('name cannot be empty')
@@ -37,6 +38,13 @@ class Task:
 
         self.cpu_architectures = cpu_archs
         '''The CPU architectures supported by the container image of this task.'''
+
+        self.expected_exec_time_msec = expected_exec_time_msec or {}
+        '''
+        The expected execution time for each supported CPU architecture.
+        Since this is just a proof of concept, we simplify this by having just one estimate by CPU architecture.
+        Note that there may not be an estimate for all supported CPU architectures.
+        '''
 
         if data_source_slos is None:
             data_source_slos = []

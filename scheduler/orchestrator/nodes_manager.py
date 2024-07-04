@@ -1,6 +1,6 @@
 
-from scheduler.model import AvailableNodes, AvailableNodesIndexed, Node, Task
-from scheduler.util import index_nodes
+from scheduler.model import AvailableNodes, AvailableNodesIndexed, Node, SatelliteNode, Task
+from scheduler.util import index_nodes, HeatEstimator
 
 class NodesManager:
     '''Maintains a directory of all nodes.'''
@@ -12,6 +12,7 @@ class NodesManager:
             edge_nodes=index_nodes(nodes.edge_nodes),
             satellites=index_nodes(nodes.satellites),
         )
+        self.__heat_estimator = HeatEstimator()
 
 
     def get_node_by_name(self, name: str) -> Node | None:
@@ -43,4 +44,9 @@ class NodesManager:
         # Assign the resources:
         for key, req in task.req_resources.items():
             target_node.resources[key] -= req
+
+        # If the node is a satellite, update its temperature
+        if isinstance(target_node, SatelliteNode):
+            target_node.heat_status.temperature_C = self.__heat_estimator.estimate_max_temp(target_node, task)
+
         return True

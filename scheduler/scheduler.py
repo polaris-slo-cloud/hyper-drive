@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from scheduler.model import AvailableNodes, AvailableNodesIndexed, Node, EligibleNode, Task, Workflow
+from scheduler.model import AvailableNodes, AvailableNodesIndexed, Node, EligibleNode, SatelliteNode, Task, Workflow
 from scheduler.orchestrator import OrchestratorClient
 from scheduler.pipeline import CommitPlugin, FilterPlugin, SchedulingContext, ScorePlugin, SelectCandidateNodesPlugin
 from scheduler.util import Timer, index_nodes
@@ -18,6 +18,8 @@ class SchedulingResult:
     avg_pred_latency: float | None = None
     avg_data_latency_slo: float | None = None
     avg_data_latency: float | None = None
+    deg_C_over_recommended: float | None = None
+    deg_C_over_max: float | None = None
 
 
 @dataclass
@@ -35,6 +37,12 @@ class _TaskLatencies:
     avg_pred_latency: float | None = None
     avg_data_latency_slo: float | None = None
     avg_data_latency: float | None = None
+
+
+@dataclass
+class _TemperatureStats:
+    deg_C_over_recommended: float | None
+    deg_C_over_max: float | None
 
 
 class Scheduler:
@@ -86,6 +94,7 @@ class Scheduler:
         timer.stop()
 
         latencies = self.__compute_latencies(task, target_node.node, ctx)
+        temperatures = self.__compute_temperature_stats(task, target_node.node)
 
         return SchedulingResult(
             success=True,
@@ -98,6 +107,8 @@ class Scheduler:
             avg_pred_latency_slo=latencies.avg_pred_latency_slo,
             avg_data_latency=latencies.avg_data_latency,
             avg_data_latency_slo=latencies.avg_data_latency_slo,
+            deg_C_over_recommended=temperatures.deg_C_over_recommended,
+            deg_C_over_max=temperatures.deg_C_over_max,
         )
 
 
@@ -214,3 +225,14 @@ class Scheduler:
             avg_data_latency=avg_data_latency,
             avg_data_latency_slo=avg_data_latency_slo,
         )
+
+
+    def __compute_temperature_stats(self, task: Task, target_node: Node) -> _TemperatureStats:
+        temperatures = _TemperatureStats(None, None)
+        if not isinstance(target_node, SatelliteNode):
+            return temperatures
+
+        temperatures.deg_C_over_recommended = target_node.heat_status.temperature_C - target_node.heat_status.recommended_high_temp_C
+        temperatures.deg_C_over_max = target_node.heat_status.temperature_C - target_node.heat_status.max_temp_C
+        return temperatures
+

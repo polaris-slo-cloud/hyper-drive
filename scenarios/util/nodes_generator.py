@@ -1,5 +1,5 @@
 from random import Random
-from scheduler.model import AvailableNodes, CpuArchitecture, EdgeNode, GroundStationNode, Location, ResourceType, SatelliteNode
+from scheduler.model import AvailableNodes, CpuArchitecture, EdgeNode, GroundStationNode, HeatInfo, Location, ResourceType, SatelliteNode
 
 class NodesGenerator:
 
@@ -12,6 +12,7 @@ class NodesGenerator:
             start_id: int,
             count: int,
             resources: list[dict[ResourceType, int]],
+            heat_configs: list[HeatInfo],
         ) -> list[SatelliteNode]:
         '''
         Generates `count` satellite nodes. The resources for each node are picked randomly from the resources list.
@@ -23,6 +24,7 @@ class NodesGenerator:
                 f'{id}',
                 self.__random.choice(resources),
                 CpuArchitecture.ARM64,
+                self.__random.choice(heat_configs),
             )
             nodes.append(node)
         return nodes
@@ -95,6 +97,32 @@ class NodesGenerator:
                         ResourceType.BATTERY_MAH: 10000,
                     }
                 ],
+                [
+                    HeatInfo(
+                        max_temp_C=75.0,
+                        recommended_high_temp_C=65.0,
+                        temperature_C=45.0,
+                        radiated_heat_per_minute_C=0.1,
+                        temp_inc_per_cpu_minute_C=1.0,
+                        mocked_max_orbit_base_temp_C=55.0,
+                    ),
+                    HeatInfo(
+                        max_temp_C=75.0,
+                        recommended_high_temp_C=65.0,
+                        temperature_C=45.0,
+                        radiated_heat_per_minute_C=0.1,
+                        temp_inc_per_cpu_minute_C=2.0,
+                        mocked_max_orbit_base_temp_C=60.0,
+                    ),
+                    HeatInfo(
+                        max_temp_C=75.0,
+                        recommended_high_temp_C=65.0,
+                        temperature_C=35.0,
+                        radiated_heat_per_minute_C=0.1,
+                        temp_inc_per_cpu_minute_C=0.5,
+                        mocked_max_orbit_base_temp_C=45.0,
+                    ),
+                ]
             ),
             edge_nodes=self.generate_edge_nodes(
                 satellites_count,

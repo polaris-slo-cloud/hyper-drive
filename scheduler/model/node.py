@@ -17,6 +17,37 @@ class LocationAndDistance(Location):
     max_distance_km: float
 
 
+@dataclass
+class HeatInfo:
+    temperature_C: float
+    '''The current temperature of the satellite in deg Celsius.'''
+
+    max_temp_C: float
+    '''
+    The maximum operating temperature in deg Celsius.
+    Above this temperature the satellite needs to reduce computing capacity to avoid damage.
+    '''
+
+    recommended_high_temp_C: float
+    '''The recommended highest temperature of the satellite. This is less than `max_temp_C` and is just a recommendation that can be safely exceeded.'''
+
+    temp_inc_per_cpu_minute_C: float
+    '''The amount of temperature increase expected by full load on one CPU core per minute.'''
+
+    radiated_heat_per_minute_C: float
+    '''
+    The amount of temperature decrease per minute due to radiator cooling panels.
+    This is a positive number that can be subtracted from the increase.
+    '''
+
+    mocked_max_orbit_base_temp_C: float
+    '''
+    The mocked max temperature that the satellite will experience in its orbit during the runtime of the task.
+    Compute the max orbit temp using this formula:
+    `mocked_max_orbit_base_temp_C` * `expected_runtime_minutes` mod `int(max_temp_C)`
+    '''
+
+
 class Node:
     '''
     Describes a general purpose compute node.
@@ -84,8 +115,9 @@ class EdgeNode(TerrestrialNode):
 
 class SatelliteNode(Node):
 
-    def __init__(self, name: str, resources: dict[ResourceType, int], cpu_arch: CpuArchitecture):
+    def __init__(self, name: str, resources: dict[ResourceType, int], cpu_arch: CpuArchitecture, heat_status: HeatInfo):
         super().__init__(name=name, resources=resources, cpu_arch=cpu_arch)
+        self.heat_status = heat_status
 
 
 @dataclass
