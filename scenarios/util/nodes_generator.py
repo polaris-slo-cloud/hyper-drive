@@ -1,5 +1,6 @@
 from random import Random
 from scheduler.model import AvailableNodes, CpuArchitecture, EdgeNode, GroundStationNode, HeatInfo, Location, ResourceType, SatelliteNode
+from scheduler.util import copy_dict
 
 class NodesGenerator:
 
@@ -22,9 +23,9 @@ class NodesGenerator:
         for id in range(start_id, start_id + count):
             node = SatelliteNode(
                 f'{id}',
-                self.__random.choice(resources),
+                self.__pick_and_copy_dict(resources),
                 CpuArchitecture.ARM64,
-                self.__random.choice(heat_configs),
+                self.__pick_and_copy_heat_info(heat_configs),
             )
             nodes.append(node)
         return nodes
@@ -46,7 +47,7 @@ class NodesGenerator:
         for loc in locations:
             node = EdgeNode(
                 f'{id}',
-                self.__random.choice(resources),
+                self.__pick_and_copy_dict(resources),
                 CpuArchitecture.ARM64,
                 Location(lat=loc[0], long=loc[1], altitude_m=0.0),
             )
@@ -71,7 +72,7 @@ class NodesGenerator:
         for loc in locations:
             node = GroundStationNode(
                 f'{id}',
-                self.__random.choice(resources),
+                self.__pick_and_copy_dict(resources),
                 CpuArchitecture.INTEL64,
                 Location(lat=loc[0], long=loc[1], altitude_m=0.0),
             )
@@ -161,3 +162,22 @@ class NodesGenerator:
             (self.__random.uniform(lat_min, lat_max), self.__random.uniform(long_min, long_max)) for i in range(1, count)
         ]
         return locs
+
+
+    def __pick_and_copy_dict[K, V](self, choices: list[dict[K, V]]) -> dict[K, V]:
+        src = self.__random.choice(choices)
+        dest: dict[K, V] = {}
+        copy_dict(src, dest)
+        return dest
+
+
+    def __pick_and_copy_heat_info(self, choices: list[HeatInfo]) -> HeatInfo:
+        src = self.__random.choice(choices)
+        return HeatInfo(
+            max_temp_C=src.max_temp_C,
+            recommended_high_temp_C=src.recommended_high_temp_C,
+            temperature_C=src.temperature_C,
+            radiated_heat_per_minute_C=src.radiated_heat_per_minute_C,
+            temp_inc_per_cpu_minute_C=src.temp_inc_per_cpu_minute_C,
+            mocked_max_orbit_base_temp_C=src.mocked_max_orbit_base_temp_C,
+        )
