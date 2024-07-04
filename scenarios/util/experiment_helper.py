@@ -57,8 +57,8 @@ class ExperimentHelper:
 
         nodes = self.__nodes_gen.generate_nodes(
             satellites_count=sn.constellation_size,
-            edge_node_locs=edge_node_locations_lat_long,
-            ground_station_locs=gs_locations_lat_long,
+            edge_node_locs_lat_long=edge_node_locations_lat_long,
+            ground_station_locs_lat_long=gs_locations_lat_long,
         )
 
         nodes_mgr = NodesManager(nodes)

@@ -9,8 +9,8 @@ class Location:
 
     lat: float
     long: float
-    altitude_m: float
-    '''The altitude of the node in meters. This is 0 for ground-based nodes.'''
+    altitude_km: float
+    '''The altitude of the node in kilometers. This is 0 for ground-based nodes.'''
 
 @dataclass
 class LocationAndDistance(Location):
@@ -96,7 +96,7 @@ class TerrestrialNode(Node):
     A Node located on Earth.
     '''
 
-    def __init__(self, name: str, resources: dict[ResourceType, int], cpu_arch: CpuArchitecture, loc: Optional[Location] = None):
+    def __init__(self, name: str, resources: dict[ResourceType, int], cpu_arch: CpuArchitecture, loc: Location):
         super().__init__(name=name, resources=resources, cpu_arch=cpu_arch)
         self.location = loc
 

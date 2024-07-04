@@ -54,7 +54,8 @@ class Scheduler:
         self.__commit_plugin = config.commit_plugin
         self.__orchestrator = config.orchestrator_client
 
-        self.__avail_nodes = AvailableNodesIndexed(
+        self.__avail_nodes = nodes
+        self.__avail_nodes_indexed = AvailableNodesIndexed(
             cloud_nodes=index_nodes(nodes.cloud_nodes),
             ground_stations=index_nodes(nodes.ground_stations),
             edge_nodes=index_nodes(nodes.edge_nodes),
@@ -134,10 +135,10 @@ class Scheduler:
 
     def __filter_default_nodes[T: Node](self, task: Task, ctx: SchedulingContext) -> list[EligibleNode]:
         eligible_nodes: list[EligibleNode] = []
-        self.__filter_nodes(task, ctx, self.__avail_nodes.cloud_nodes, eligible_nodes)
-        self.__filter_nodes(task, ctx, self.__avail_nodes.ground_stations, eligible_nodes)
-        self.__filter_nodes(task, ctx, self.__avail_nodes.edge_nodes, eligible_nodes)
-        self.__filter_nodes(task, ctx, self.__avail_nodes.satellites, eligible_nodes)
+        self.__filter_nodes(task, ctx, self.__avail_nodes_indexed.cloud_nodes, eligible_nodes)
+        self.__filter_nodes(task, ctx, self.__avail_nodes_indexed.ground_stations, eligible_nodes)
+        self.__filter_nodes(task, ctx, self.__avail_nodes_indexed.edge_nodes, eligible_nodes)
+        self.__filter_nodes(task, ctx, self.__avail_nodes_indexed.satellites, eligible_nodes)
         return eligible_nodes
 
 

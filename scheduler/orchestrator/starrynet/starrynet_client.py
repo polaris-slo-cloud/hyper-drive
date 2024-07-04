@@ -1,6 +1,6 @@
 from typing import cast
 import networkx as nx
-from scheduler.model import Node, Task
+from scheduler.model import Node, SatelliteNode, Task
 from scheduler.orchestrator import NodesManager, OrchestratorClient
 from scheduler.orchestrator.starrynet.starrynet_time_svc import StarryNetTimeService
 from starrynet.starrynet.sn_synchronizer import StarryNet
@@ -13,6 +13,8 @@ class StarryNetClient(OrchestratorClient):
         self.__time_svc = time_svc
         self.__network_graph_time: int = -1
         self.__network_graph: nx.Graph = self.__build_network_graph()
+        self.__sat_positions_time: int = -1
+        self.__sat_positions: list[tuple[float, float, float]] = []
 
 
     def get_node_by_name(self, name: str) -> Node | None:
@@ -39,6 +41,13 @@ class StarryNetClient(OrchestratorClient):
 
     def assign_task(self, task: Task, target_node: Node) -> bool:
         return self.__nodes_mgr.assign_task(task, target_node)
+
+
+    def get_satellite_position(self, node: SatelliteNode) -> tuple[float, float, float]:
+        if self.__sat_positions_time != self.__time_svc.curr_time:
+            self.__sat_positions = self.__sn.get_positions(self.__time_svc.curr_time)
+            self.__sat_positions_time = self.__time_svc.curr_time
+        return self.__sat_positions[int(node.name)]
 
 
     def __get_network_graph(self) -> nx.Graph:
@@ -71,4 +80,3 @@ class StarryNetClient(OrchestratorClient):
                     self.__network_graph.add_edge(i, j, latency=latency)
 
         self.__network_graph_time = self.__time_svc.curr_time
-

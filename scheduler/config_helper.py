@@ -2,7 +2,14 @@ from scheduler.pipeline import CommitPlugin, FilterPlugin, ScorePlugin, SelectCa
 from scheduler.plugins import HeatOptPlugin, MultiCommitPlugin, NetworkQosPlugin, ResourcesFitPlugin, SelectNodesInVicinityPlugin
 
 def create_default_candidate_nodes_plugin() -> SelectCandidateNodesPlugin:
-    return SelectNodesInVicinityPlugin()
+    return SelectNodesInVicinityPlugin(
+        radius_ground_km=500.0,
+        radius_edge_km=100,
+        radius_space_km=2000,
+        ground_nodes_count=120,
+        edge_nodes_count=120,
+        space_nodes_count=60,
+    )
 
 
 def create_default_filter_plugins() -> list[FilterPlugin]:

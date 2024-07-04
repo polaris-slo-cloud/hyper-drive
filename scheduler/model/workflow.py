@@ -69,6 +69,13 @@ class Workflow:
         return cast(NetworkSLO, edge_data['__NETWORK_SLO'])
 
 
+    def get_predecessors(self, task: Task) -> list[Task]:
+        '''Gets the predecessors of the specified task. Returns an empty list if this is the first task.'''
+        predecessors_it = self.dag.predecessors(task)
+        predecessors: list[Task] = [ cast(Task, t) for t in predecessors_it ]
+        return predecessors
+
+
     def get_successors(self, task: Task) -> list[Task]:
         '''Gets the successors of the specified task. Returns an empty list if this was the last task.'''
         successors_it = self.dag.successors(task)

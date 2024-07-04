@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from scheduler.model import Node, Task
+from scheduler.model import Node, SatelliteNode, Task
 
 class OrchestratorClient(ABC):
     '''Provides access to the underlying orchestrator.'''
@@ -20,5 +20,10 @@ class OrchestratorClient(ABC):
     @abstractmethod
     def assign_task(self, task: Task, target_node: Node) -> bool:
         '''Assigns the task to the target node if enough resources are available.'''
+        pass
+
+    @abstractmethod
+    def get_satellite_position(self, node: SatelliteNode) -> tuple[float, float, float]:
+        '''Gets the specified satellite's position as a tuple (lat, long, altitude_km)'''
         pass
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from scheduler.model import AvailableNodesIndexed, Node, EligibleNode, Task, Workflow
+from scheduler.model import AvailableNodes, Node, EligibleNode, Task, Workflow
 from scheduler.orchestrator import OrchestratorClient
 
 @dataclass
@@ -15,7 +15,7 @@ class SelectCandidateNodesPlugin(ABC):
     SelectCandidateNodes plugins can, e.g., be used to pre-select only nodes in the vicinity of the source.
     '''
 
-    def select_candidates(self, task: Task, all_nodes: AvailableNodesIndexed, ctx: SchedulingContext) -> dict[str, Node] | None:
+    def select_candidates(self, task: Task, all_nodes: AvailableNodes, ctx: SchedulingContext) -> dict[str, Node] | None:
         '''
         Selects a list of candidate nodes that will be passed to the filter plugins.
         If no nodes are eligible as candidates, an empty dictionary is returned.
