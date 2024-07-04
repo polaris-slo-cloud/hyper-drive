@@ -1,4 +1,4 @@
-
+from typing import Any
 from dataclasses import dataclass
 from scheduler.model import AvailableNodes, AvailableNodesIndexed, Node, EligibleNode, SatelliteNode, Task, Workflow
 from scheduler.orchestrator import OrchestratorClient
@@ -20,6 +20,9 @@ class SchedulingResult:
     avg_data_latency: float | None = None
     deg_C_over_recommended: float | None = None
     deg_C_over_max: float | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return self.__dict__
 
 
 @dataclass

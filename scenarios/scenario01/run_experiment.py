@@ -1,7 +1,7 @@
-from scenarios.util import ExperimentHelper, create_wildfire_detection_wf
-from scheduler.model import Task
+from scenarios.util import ExperimentHelper, create_wildfire_detection_wf, write_results_to_csv
 from scheduler import SchedulingResult
 
+RESULTS_CSV = 'results.csv'
 
 def run_experiment(path_to_scenario_dir: str = '.'):
     # The configuration file has 72 Starlink orbital planes configured.
@@ -65,6 +65,7 @@ def run_experiment(path_to_scenario_dir: str = '.'):
     })
 
     print(scheduling_results)
+    write_results_to_csv(f'{path_to_scenario_dir}/{RESULTS_CSV}', scheduling_results)
 
 
 if __name__ == '__main__':
