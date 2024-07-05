@@ -191,5 +191,5 @@ class ExperimentBuilder:
     def __extend_locations(self, nodes_gen: NodesGenerator, locs: list[tuple[float, float]], total: int, bounds: tuple[tuple[float, float], tuple[float, float]]) -> list[tuple[float, float]]:
         if len(locs) >= total:
             return locs
-        new_locs = nodes_gen.generate_random_locations(total, bounds)
+        new_locs = nodes_gen.generate_random_locations(total - len(locs), bounds)
         return locs + new_locs

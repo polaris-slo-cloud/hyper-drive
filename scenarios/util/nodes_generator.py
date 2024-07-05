@@ -159,7 +159,7 @@ class NodesGenerator:
         long_max = max(bounds_lat_long[0][1], bounds_lat_long[1][1])
 
         locs: list[tuple[float, float]] = [
-            (self.__random.uniform(lat_min, lat_max), self.__random.uniform(long_min, long_max)) for i in range(1, count)
+            (self.__random.uniform(lat_min, lat_max), self.__random.uniform(long_min, long_max)) for i in range(0, count)
         ]
         return locs
 
