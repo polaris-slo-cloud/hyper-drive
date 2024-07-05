@@ -3,7 +3,7 @@ from scheduler.model import AvailableNodes
 from scheduler.orchestrator import NodesManager
 from scheduler.orchestrator.starrynet import StarryNetClient, StarryNetTimeService
 from scheduler import create_default_candidate_nodes_plugin, create_default_commit_plugin, create_default_filter_plugins, create_default_score_plugins, Scheduler, SchedulerConfig, SchedulerPluginsConfig
-from scheduler.plugins import ResourcesFitPlugin
+from scheduler.plugins import ResourcesFitPlugin, SelectNodesInVicinityPlugin
 from scheduler.plugins.baseline import FirstFitPlugin, RandomSelectionPlugin, RoundRobinPlugin
 from starrynet.starrynet.sn_synchronizer import StarryNet
 from .nodes_generator import NodesGenerator
@@ -29,6 +29,8 @@ class Experiment:
     nodes: AvailableNodes
     nodes_mgr: NodesManager
     scheduler: Scheduler
+    select_vicinity: SelectNodesInVicinityPlugin
+    '''Needed for finding a satellite close to the drone and declaring it as an EO satellite.'''
 
 
 class ExperimentBuilder:
@@ -116,6 +118,16 @@ class ExperimentBuilder:
             nodes
         )
 
+        # Needed for finding a satellite that we can declare as EO satellite close to a drone.
+        select_vicinity = SelectNodesInVicinityPlugin(
+            radius_ground_km=500.0,
+            radius_edge_km=100,
+            radius_space_km=500,
+            ground_nodes_count=0,
+            edge_nodes_count=0,
+            space_nodes_count=10,
+        )
+
         return Experiment(
             sn=sn_setup.sn,
             sn_time_svc=sn_time_svc,
@@ -123,6 +135,7 @@ class ExperimentBuilder:
             nodes=nodes,
             nodes_mgr=nodes_mgr,
             scheduler=scheduler,
+            select_vicinity=select_vicinity,
         )
 
 

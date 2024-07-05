@@ -1,9 +1,12 @@
 import math
 from typing import cast
+from scheduler.model import ResourceType, SatelliteNode
 from scheduler import SchedulingResult, SchedulerPluginsConfig
+from scheduler.pipeline import SchedulingContext
+from scheduler.plugins import SelectNodesInVicinityPlugin
 from .workflow_helper import create_wildfire_detection_wf, WildfireDetectionWorkflow
 from .results_serializer import write_results_to_csv
-from .experiment_builder import ExperimentBuilder, StarryNetSetup
+from .experiment_builder import Experiment, ExperimentBuilder, StarryNetSetup
 
 class WildfireDetSchedulingQualityExperiment:
 
@@ -91,13 +94,7 @@ class WildfireDetSchedulingQualityExperiment:
         def schedule_and_adjust_eo_sat(curr_wildfire_wf: WildfireDetectionWorkflow):
             schedule_next_task_fn(curr_wildfire_wf)
             # We configure the node of the EO sat now, because we now know which satellites are in the area.
-            extract_frames_node_id = int(cast(str, scheduling_results[-1].target_node))
-            if scheduling_results[-1].target_node_type != 'SatelliteNode':
-                raise SystemError('extract-frames was not scheduled on a satellite')
-            eo_sat_node_id = (extract_frames_node_id + 1) % len(experiment.nodes.satellites)
-            eo_sat_node = experiment.nodes_mgr.get_node_by_name(f'{eo_sat_node_id}')
-            if not eo_sat_node:
-                raise SystemError(f'Node {eo_sat_node_id} does not exist.')
+            eo_sat_node = self.__find_eo_satellite(curr_wildfire_wf, experiment, experiment.select_vicinity)
             curr_wildfire_wf.object_det_task.data_source_slos[0].data_source = eo_sat_node
 
         sn_time_svc.run_simulation({
@@ -124,3 +121,27 @@ class WildfireDetSchedulingQualityExperiment:
 
         print(scheduling_results)
         write_results_to_csv(results_csv, scheduling_results)
+
+
+    def __find_eo_satellite(
+        self,
+        curr_wildfire_wf: WildfireDetectionWorkflow,
+        experiment: Experiment,
+        select_vicinity: SelectNodesInVicinityPlugin,
+    ) -> SatelliteNode:
+        '''Finds a satellite close to the ingest task (the drone) and declares it as an EO satellite.'''
+        satellites = select_vicinity.select_candidates(
+            curr_wildfire_wf.extract_frames_task, # By selecting candidates for extract-frames, we get satellites close to the drone of the ingest task.
+            experiment.nodes,
+            SchedulingContext(workflow=curr_wildfire_wf.wf, orchestrator=experiment.sn_client),
+        )
+        if not satellites or len(satellites) == 0:
+            raise SystemError('No satellites found in the vicinity of the extract-frames task')
+        keys_list = list(satellites.keys())
+        satellite = cast(SatelliteNode, satellites[keys_list[-1]])
+
+        # Claim all the resources to avoid having something scheduled on it.
+        satellite.resources[ResourceType.MILLI_CPU] = 0
+        satellite.resources[ResourceType.MEMORY_MIB] = 0
+        return satellite
+
