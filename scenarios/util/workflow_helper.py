@@ -1,7 +1,22 @@
+from dataclasses import dataclass
 from scheduler.model import CpuArchitecture, DataSourceSLO, NetworkSLO, Node, PredecessorConfig, ResourceType, Task, Workflow
 
+@dataclass
+class WildfireDetectionWorkflow:
+    wf: Workflow
+    ingest_task: Task
+    extract_frames_task: Task
+    object_det_task: Task
+    prepare_ds_task: Task
+    last_scheduled_task: Task | None = None
 
-def create_wildfire_detection_wf(eo_sat_node: Node) -> Workflow:
+    def get_next_task(self) -> Task:
+        if self.last_scheduled_task:
+            return self.wf.get_successors(self.last_scheduled_task)[0]
+        return self.ingest_task
+
+
+def create_wildfire_detection_wf(eo_sat_node: Node) -> WildfireDetectionWorkflow:
     '''
     Creates a workflow for the wildfire detection use case.
     '''
@@ -82,4 +97,10 @@ def create_wildfire_detection_wf(eo_sat_node: Node) -> Workflow:
     )
     wf.add_task(prepare_ds_task, [ prepare_ds_pred_conf ])
 
-    return wf
+    return WildfireDetectionWorkflow(
+        wf=wf,
+        ingest_task=ingest_task,
+        extract_frames_task=extract_frames_task,
+        object_det_task=object_det_task,
+        prepare_ds_task=prepare_ds_task,
+    )

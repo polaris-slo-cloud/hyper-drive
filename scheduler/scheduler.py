@@ -7,6 +7,7 @@ from scheduler.util import Timer, index_nodes
 
 @dataclass
 class SchedulingResult:
+    total_nodes: int
     success: bool
     task: str
     scheduling_duration_msec: int
@@ -68,6 +69,7 @@ class Scheduler:
             edge_nodes=index_nodes(nodes.edge_nodes),
             satellites=index_nodes(nodes.satellites),
         )
+        self.__total_nodes = len(nodes.satellites) + len(nodes.edge_nodes) + len(nodes.ground_stations) + len(nodes.cloud_nodes)
 
 
     def schedule(self, task: Task, workflow: Workflow) -> SchedulingResult:
@@ -81,7 +83,7 @@ class Scheduler:
         def scheduling_failure(reason: str) -> SchedulingResult:
             timer.stop()
             workflow.scheduled_tasks[task] = None
-            return SchedulingResult(success=False, task=task.name, scheduling_duration_msec=timer.duration_ms(), failure_reason=reason)
+            return SchedulingResult(total_nodes=self.__total_nodes, success=False, task=task.name, scheduling_duration_msec=timer.duration_ms(), failure_reason=reason)
 
         candidate_nodes = self.__select_candidate_nodes_plugin.select_candidates(task, self.__avail_nodes, ctx)
         if candidate_nodes is not None:
@@ -105,6 +107,7 @@ class Scheduler:
         temperatures = self.__compute_temperature_stats(task, target_node.node)
 
         return SchedulingResult(
+            total_nodes=self.__total_nodes,
             success=True,
             task=task.name,
             target_node=target_node.node.name,
@@ -131,6 +134,7 @@ class Scheduler:
             raise SystemError(f'Could not force schedule task {task.name} to node {target_node.name}.')
 
         return SchedulingResult(
+            total_nodes=self.__total_nodes,
             success=True,
             task=task.name,
             target_node=target_node.name,

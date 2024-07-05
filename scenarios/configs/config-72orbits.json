@@ -8,7 +8,7 @@
     "# of satellites": 5,
     "Duration (s)": 100,
     "update_time (s)": 10,
-    "satellite link bandwidth (\"X\" Gbps)": 67,
+    "satellite link bandwidth (\"X\" Gbps)": 50,
     "sat-ground bandwidth (\"X\" Gbps)": 5,
     "satellite link loss (\"X\"% )": 1,
     "sat-ground loss (\"X\"% )": 1,

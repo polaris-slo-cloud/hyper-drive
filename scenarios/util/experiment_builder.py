@@ -40,6 +40,7 @@ class ExperimentBuilder:
     def init_starrynet(
         self,
         config_path: str,
+        duration_minutes: int,
         sats_per_orbit: int,
         edge_nodes_count: int,
         gs_nodes_count: int,
@@ -54,6 +55,7 @@ class ExperimentBuilder:
         By separating this step, the generated StarryNet data can be reused for multiple experiments.
 
         `config_path`: the path of the config.json file.
+        `duration_minutes`: the simulated duration of the experiment in minutes.
         `sats_per_orbit`: is multiplied by the number of orbits specified in the config file to obtain the total number of satellites.
         `edge_nodes_count`: the total number of edge nodes to generate.
         `gs_nodes_count`: the total number of ground station nodes to generate.
@@ -73,6 +75,7 @@ class ExperimentBuilder:
             GS_lat_long=edge_node_locations_lat_long + gs_locations_lat_long,
             hello_interval=1, # hello_interval(s) in OSPF. 1-200 are supported.
             sats_per_orbit_override=sats_per_orbit,
+            duration_override=duration_minutes,
         )
 
         return StarryNetSetup(
