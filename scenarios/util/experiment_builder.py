@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from scheduler.model import AvailableNodes
 from scheduler.orchestrator import NodesManager
@@ -7,6 +8,17 @@ from scheduler.plugins import ResourcesFitPlugin, SelectNodesInVicinityPlugin
 from scheduler.plugins.baseline import FirstFitPlugin, RandomSelectionPlugin, RoundRobinPlugin
 from starrynet.starrynet.sn_synchronizer import StarryNet
 from .nodes_generator import NodesGenerator
+
+
+@dataclass
+class NodeCounts:
+    '''
+    Configures the number of nodes for an experiment.
+    Note that the satellites are an approximate number because the final number is be a multiple of the number of orbital planes.
+    '''
+    satellites: int
+    edge_nodes: int
+    ground_stations: int
 
 
 @dataclass
@@ -43,9 +55,7 @@ class ExperimentBuilder:
         self,
         config_path: str,
         duration_minutes: int,
-        sats_per_orbit: int,
-        edge_nodes_count: int,
-        gs_nodes_count: int,
+        node_counts: NodeCounts,
         edge_node_locations_lat_long: list[tuple[float, float]],
         gs_locations_lat_long: list[tuple[float, float]],
         edge_nodes_location_bounds: tuple[tuple[float, float], tuple[float, float]],
@@ -58,25 +68,28 @@ class ExperimentBuilder:
 
         `config_path`: the path of the config.json file.
         `duration_minutes`: the simulated duration of the experiment in minutes.
-        `sats_per_orbit`: is multiplied by the number of orbits specified in the config file to obtain the total number of satellites.
-        `edge_nodes_count`: the total number of edge nodes to generate.
-        `gs_nodes_count`: the total number of ground station nodes to generate.
+        `node_counts`: configures the number of nodes in each dimension of the 3D continuum.
         `edge_node_locations_lat_long`: the locations of edge nodes. If `edge_nodes_count` is greater than the number of locations, the rest will be generated randomly.
         `gs_locations_lat_long`: the locations of ground station nodes.  If `gs_nodes_count` is greater than the number of locations, the rest will be generated randomly.
         `edge_nodes_location_bounds`: the bounds of the region for randomly generated ground station node positions.
         `gs_nodes_location_bounds`: the bounds of the region for randomly generated ground station node positions.
         '''
+        # The configuration file has 72 Starlink orbital planes configured.
+        # The total number of satellites is 72 * sats_per_orbit.
+        # Even though config.json mentions duration in seconds, we actually interpret the number as minutes
+        # and also advance the simulation minute by minute.
+
         # By reusing the same seed we ensure that the experiment is reproducible.
         nodes_gen = NodesGenerator(self.__random_seed)
 
-        edge_node_locations_lat_long = self.__extend_locations(nodes_gen, edge_node_locations_lat_long, edge_nodes_count, edge_nodes_location_bounds)
-        gs_locations_lat_long = self.__extend_locations(nodes_gen, gs_locations_lat_long, gs_nodes_count, gs_nodes_location_bounds);
+        edge_node_locations_lat_long = self.__extend_locations(nodes_gen, edge_node_locations_lat_long, node_counts.edge_nodes, edge_nodes_location_bounds)
+        gs_locations_lat_long = self.__extend_locations(nodes_gen, gs_locations_lat_long, node_counts.ground_stations, gs_nodes_location_bounds);
 
         sn = StarryNet(
             configuration_file_path=config_path,
             GS_lat_long=edge_node_locations_lat_long + gs_locations_lat_long,
             hello_interval=1, # hello_interval(s) in OSPF. 1-200 are supported.
-            sats_per_orbit_override=sats_per_orbit,
+            sats_per_orbit_override=int(math.ceil(node_counts.satellites / 72.0)),
             duration_override=duration_minutes,
         )
 

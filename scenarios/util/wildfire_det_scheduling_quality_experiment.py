@@ -6,23 +6,18 @@ from scheduler.pipeline import SchedulingContext
 from scheduler.plugins import SelectNodesInVicinityPlugin
 from .workflow_helper import create_wildfire_detection_wf, WildfireDetectionWorkflow
 from .results_serializer import write_results_to_csv
-from .experiment_builder import Experiment, ExperimentBuilder, StarryNetSetup
+from .experiment_builder import Experiment, ExperimentBuilder, NodeCounts, StarryNetSetup
 
 class WildfireDetSchedulingQualityExperiment:
 
-    def __init__(self, nodes_per_continuum_dimension: int, path_to_config_dir: str):
+    def __init__(self, node_counts: NodeCounts, path_to_config_dir: str):
         self.__exp_builder = ExperimentBuilder()
-        self.__sn_setup = self.__init_sn(nodes_per_continuum_dimension, path_to_config_dir)
+        self.__sn_setup = self.__init_sn(node_counts, path_to_config_dir)
         self.total_nodes = self.__sn_setup.total_nodes_count
 
 
-    def __init_sn(self, nodes_per_continuum_dimension: int, path_to_config_dir: str) -> StarryNetSetup:
-        # The configuration file has 72 Starlink orbital planes configured.
-        # The total number of satellites is 72 * sats_per_orbit.
-        # Even though config.json mentions duration in seconds, we actually interpret the number as minutes
-        # and also advance the simulation minute by minute.
-
-        print(f'Setting up StarryNet with {nodes_per_continuum_dimension} nodes per continuum dimension.')
+    def __init_sn(self, node_counts: NodeCounts, path_to_config_dir: str) -> StarryNetSetup:
+        print(f'Setting up StarryNet with {node_counts}.')
         config_file_path = f'{path_to_config_dir}/config-72orbits.json'
 
         # Locations of the explicitly configured edge nodes.
@@ -46,9 +41,7 @@ class WildfireDetSchedulingQualityExperiment:
         return self.__exp_builder.init_starrynet(
             config_path=config_file_path,
             duration_minutes=50,
-            sats_per_orbit=int(math.ceil(nodes_per_continuum_dimension / 72.0)),
-            edge_nodes_count=nodes_per_continuum_dimension,
-            gs_nodes_count=nodes_per_continuum_dimension,
+            node_counts=node_counts,
             gs_locations_lat_long=gs_lat_long,
             edge_node_locations_lat_long=edge_lat_long,
             edge_nodes_location_bounds=((41.990495, -124.218537), (32.729169, -114.613391)),

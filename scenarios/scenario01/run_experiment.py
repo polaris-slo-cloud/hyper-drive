@@ -1,19 +1,19 @@
-from scenarios.util import ExperimentBuilder, WildfireDetSchedulingQualityExperiment
+from scenarios.util import ExperimentBuilder, NodeCounts, WildfireDetSchedulingQualityExperiment
 
-RESULTS_CSV_PREFIX = 'results-'
+RESULTS_CSV_PREFIX = 'results'
 
-NODES_PER_CONTINUUM_DIMENSION = [
-    400,
-    600,
-    800,
-    1000,
+NODE_COUNTS = [
+    NodeCounts(satellites=1000, edge_nodes=100, ground_stations=10),
+    NodeCounts(satellites=1500, edge_nodes=150, ground_stations=15),
+    NodeCounts(satellites=2000, edge_nodes=200, ground_stations=20),
+    NodeCounts(satellites=2500, edge_nodes=250, ground_stations=25),
 ]
 
 def run_experiment(path_to_scenario_dir: str = '.'):
     exp_builder = ExperimentBuilder()
 
-    for nodes_per_dimension in NODES_PER_CONTINUUM_DIMENSION:
-        experiment = WildfireDetSchedulingQualityExperiment(nodes_per_dimension, f'{path_to_scenario_dir}/../configs')
+    for nodes_count in NODE_COUNTS:
+        experiment = WildfireDetSchedulingQualityExperiment(nodes_count, f'{path_to_scenario_dir}/../configs')
 
         print('Executing experiment with HyperDrive')
         experiment.run_scheduling_quality_experiment(
