@@ -1,0 +1,16 @@
+total_nodes,success,task,scheduling_duration_msec,failure_reason,target_node_type,target_node,score,avg_pred_latency_slo,avg_pred_latency,avg_data_latency_slo,avg_data_latency,deg_C_over_recommended,deg_C_over_max
+2236,True,extract-frames,3,,SatelliteNode,0,100,100.0,154.84778919477424,,,-18.1,-28.1
+2236,True,object-det,3,,SatelliteNode,1,100,150.0,8.80228011757589,175.0,160.46312315950905,14.0,4.0
+2236,True,prepare-ds,2,,SatelliteNode,2,100,100.0,8.828668766824697,,,-38.15,-48.15
+2236,True,extract-frames,2,,SatelliteNode,3,100,100.0,202.93294345403189,,,2.9000000000000057,-7.099999999999994
+2236,True,object-det,2,,SatelliteNode,4,100,150.0,8.830309838400069,175.0,186.83597131789838,-1.0,-11.0
+2236,True,prepare-ds,3,,SatelliteNode,5,100,100.0,8.804730254210225,,,-38.15,-48.15
+2236,True,extract-frames,3,,SatelliteNode,6,100,100.0,159.4866717611713,,,2.9000000000000057,-7.099999999999994
+2236,True,object-det,3,,SatelliteNode,7,100,150.0,8.776121149977898,175.0,147.28028826453888,-46.0,-56.0
+2236,True,prepare-ds,3,,SatelliteNode,8,100,100.0,8.785030284662636,,,4.849999999999994,-5.150000000000006
+2236,True,extract-frames,3,,SatelliteNode,9,100,100.0,283.9576429600268,,,2.9000000000000057,-7.099999999999994
+2236,True,object-det,2,,SatelliteNode,10,100,150.0,8.82035150073109,175.0,90.07960646818387,-46.0,-56.0
+2236,True,prepare-ds,3,,SatelliteNode,11,100,100.0,8.828708430243076,,,-38.15,-48.15
+2236,True,extract-frames,3,,SatelliteNode,12,100,100.0,93.37097325062548,,,-6.100000000000001,-16.1
+2236,True,object-det,2,,SatelliteNode,13,100,150.0,8.801344180816711,175.0,98.97610062129232,-46.0,-56.0
+2236,True,prepare-ds,2,,SatelliteNode,14,100,100.0,8.77970315141601,,,-38.15,-48.15

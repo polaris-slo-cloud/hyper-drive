@@ -1,0 +1,16 @@
+total_nodes,success,task,scheduling_duration_msec,failure_reason,target_node_type,target_node,score,avg_pred_latency_slo,avg_pred_latency,avg_data_latency_slo,avg_data_latency,deg_C_over_recommended,deg_C_over_max
+4472,True,extract-frames,559,,SatelliteNode,2817,100,100.0,3.429546059595405,,,-6.100000000000001,-16.1
+4472,True,object-det,910,,SatelliteNode,2815,100,150.0,8.80812102570457,175.0,132.26330731714782,-1.0,-11.0
+4472,True,prepare-ds,582,,SatelliteNode,2703,95,100.0,7.384381852327083,,,-38.15,-48.15
+4472,True,extract-frames,593,,EdgeNode,4038,100,100.0,6.419403507509163,,,,
+4472,True,object-det,923,,EdgeNode,4066,100,150.0,6.695578573835981,175.0,6.976744489749008,,
+4472,True,prepare-ds,589,,EdgeNode,4224,100,100.0,6.480532466764583,,,,
+4472,True,extract-frames,571,,EdgeNode,4056,96,100.0,6.3215139203268595,,,,
+4472,True,object-det,856,,SatelliteNode,2860,100,150.0,19.70890511725941,175.0,120.30816566510214,-46.0,-56.0
+4472,True,prepare-ds,717,,EdgeNode,4077,100,100.0,3.152480596660669,,,,
+4472,True,extract-frames,632,,EdgeNode,4043,100,100.0,6.5850361393959105,,,,
+4472,True,object-det,935,,EdgeNode,4165,100,150.0,6.307004369071357,175.0,7.592288659361952,,
+4472,True,prepare-ds,596,,EdgeNode,4078,50,100.0,6.30475104872915,,,,
+4472,True,extract-frames,587,,EdgeNode,4127,96,100.0,6.319498790893338,,,,
+4472,True,object-det,888,,SatelliteNode,2962,100,150.0,19.78337481814337,175.0,112.75303596607154,-1.0,-11.0
+4472,True,prepare-ds,667,,EdgeNode,4143,100,100.0,3.133254907102377,,,,
