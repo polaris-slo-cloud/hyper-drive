@@ -1,3 +1,4 @@
+from typing import cast
 from scenarios.util import ExperimentHelper, create_wildfire_detection_wf, write_results_to_csv
 from scheduler import SchedulingResult
 
@@ -6,6 +7,8 @@ RESULTS_CSV = 'results.csv'
 def run_experiment(path_to_scenario_dir: str = '.'):
     # The configuration file has 72 Starlink orbital planes configured.
     # The total number of satellites is 72 * sats_per_orbit.
+    # Even though config.json mentions duration in seconds, we actually interpret the number as minutes
+    # and also advance the simulation minute by minute.
 
     # Locations of the explicitly configured edge nodes.
     # The locations of the rest up to edge_nodes_count is placed randomly within the edge_nodes_location_bounds.
@@ -57,11 +60,23 @@ def run_experiment(path_to_scenario_dir: str = '.'):
             raise RuntimeError(f'Could not schedule {task.name}. Reason: {result.failure_reason}')
         prev_task[0] = task
 
+    def schedule_and_adjust_eo_sat(curr_time: int):
+        schedule_next_task_fn(curr_time)
+        # We configure the node of the EO sat now, because we now know which satellites are in the area.
+        extract_frames_node_id = int(cast(str, scheduling_results[-1].target_node))
+        if scheduling_results[-1].target_node_type != 'SatelliteNode':
+            raise SystemError('extract-frames was not scheduled on a satellite')
+        eo_sat_node_id = (extract_frames_node_id + 1) % len(experiment.nodes.satellites)
+        eo_sat_node = experiment.nodes_mgr.get_node_by_name(f'{eo_sat_node_id}')
+        if not eo_sat_node:
+            raise SystemError(f'Node {eo_sat_node_id} does not exist.')
+        obj_det_task = wf.get_successors(prev_task[0])[0]
+        obj_det_task.data_source_slos[0].data_source = eo_sat_node
 
     sn_time_svc.run_simulation({
+        2: schedule_and_adjust_eo_sat,
+        4: schedule_next_task_fn,
         10: schedule_next_task_fn,
-        35: schedule_next_task_fn,
-        70: schedule_next_task_fn,
     })
 
     print(scheduling_results)
