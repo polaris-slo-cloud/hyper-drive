@@ -93,7 +93,7 @@ def create_wildfire_detection_wf(eo_sat_node: Node) -> WildfireDetectionWorkflow
     )
     prepare_ds_pred_conf = PredecessorConfig(
         object_det_task,
-        NetworkSLO(max_latency_msec=250, min_bandwidth_kpbs=None)
+        NetworkSLO(max_latency_msec=100, min_bandwidth_kpbs=None)
     )
     wf.add_task(prepare_ds_task, [ prepare_ds_pred_conf ])
 

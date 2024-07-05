@@ -40,7 +40,7 @@ class WildfireDetSchedulingQualityExperiment:
 
         return self.__exp_builder.init_starrynet(
             config_path=config_file_path,
-            duration_minutes=50,
+            duration_minutes=40,
             node_counts=node_counts,
             gs_locations_lat_long=gs_lat_long,
             edge_node_locations_lat_long=edge_lat_long,
@@ -93,23 +93,23 @@ class WildfireDetSchedulingQualityExperiment:
         sn_time_svc.run_simulation({
             2: lambda curr_time: schedule_and_adjust_eo_sat(wildfire_workflows[0]),
             4: lambda curr_time: schedule_next_task_fn(wildfire_workflows[0]),
-            10: lambda curr_time: schedule_next_task_fn(wildfire_workflows[0]),
+            8: lambda curr_time: schedule_next_task_fn(wildfire_workflows[0]),
 
-            12: lambda curr_time: schedule_and_adjust_eo_sat(wildfire_workflows[1]),
-            14: lambda curr_time: schedule_next_task_fn(wildfire_workflows[1]),
-            20: lambda curr_time: schedule_next_task_fn(wildfire_workflows[1]),
+            10: lambda curr_time: schedule_and_adjust_eo_sat(wildfire_workflows[1]),
+            12: lambda curr_time: schedule_next_task_fn(wildfire_workflows[1]),
+            16: lambda curr_time: schedule_next_task_fn(wildfire_workflows[1]),
 
-            22: lambda curr_time: schedule_and_adjust_eo_sat(wildfire_workflows[2]),
+            18: lambda curr_time: schedule_and_adjust_eo_sat(wildfire_workflows[2]),
+            20: lambda curr_time: schedule_next_task_fn(wildfire_workflows[2]),
             24: lambda curr_time: schedule_next_task_fn(wildfire_workflows[2]),
-            30: lambda curr_time: schedule_next_task_fn(wildfire_workflows[2]),
 
-            32: lambda curr_time: schedule_and_adjust_eo_sat(wildfire_workflows[3]),
-            34: lambda curr_time: schedule_next_task_fn(wildfire_workflows[3]),
-            40: lambda curr_time: schedule_next_task_fn(wildfire_workflows[3]),
+            26: lambda curr_time: schedule_and_adjust_eo_sat(wildfire_workflows[3]),
+            28: lambda curr_time: schedule_next_task_fn(wildfire_workflows[3]),
+            32: lambda curr_time: schedule_next_task_fn(wildfire_workflows[3]),
 
-            42: lambda curr_time: schedule_and_adjust_eo_sat(wildfire_workflows[4]),
-            44: lambda curr_time: schedule_next_task_fn(wildfire_workflows[4]),
-            50: lambda curr_time: schedule_next_task_fn(wildfire_workflows[4]),
+            34: lambda curr_time: schedule_and_adjust_eo_sat(wildfire_workflows[4]),
+            36: lambda curr_time: schedule_next_task_fn(wildfire_workflows[4]),
+            40: lambda curr_time: schedule_next_task_fn(wildfire_workflows[4]),
         })
 
         print(scheduling_results)
