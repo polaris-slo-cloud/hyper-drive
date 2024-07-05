@@ -5,7 +5,7 @@ from scheduler.orchestrator import NodesManager
 from scheduler.orchestrator.starrynet import StarryNetClient, StarryNetTimeService
 from scheduler import create_default_candidate_nodes_plugin, create_default_commit_plugin, create_default_filter_plugins, create_default_score_plugins, Scheduler, SchedulerConfig, SchedulerPluginsConfig
 from scheduler.plugins import ResourcesFitPlugin, SelectNodesInVicinityPlugin
-from scheduler.plugins.baseline import FirstFitPlugin, RandomSelectionPlugin, RoundRobinPlugin
+from scheduler.plugins.baseline import FirstFitPlugin, RandomSelectionPlugin, RoundRobinPlugin, SelectAllNodesPlugin
 from starrynet.starrynet.sn_synchronizer import StarryNet
 from .nodes_generator import NodesGenerator
 
@@ -163,7 +163,7 @@ class ExperimentBuilder:
 
     def create_firstfit_scheduler_plugins(self) -> SchedulerPluginsConfig:
         return SchedulerPluginsConfig(
-            select_candidate_nodes_plugin=create_default_candidate_nodes_plugin(),
+            select_candidate_nodes_plugin=SelectAllNodesPlugin(),
             filter_plugins=[ ResourcesFitPlugin() ],
             score_plugins=[ FirstFitPlugin() ],
             commit_plugin=create_default_commit_plugin(),
@@ -172,7 +172,7 @@ class ExperimentBuilder:
 
     def create_random_scheduler_plugins(self) -> SchedulerPluginsConfig:
         return SchedulerPluginsConfig(
-            select_candidate_nodes_plugin=create_default_candidate_nodes_plugin(),
+            select_candidate_nodes_plugin=SelectAllNodesPlugin(),
             filter_plugins=[ ResourcesFitPlugin() ],
             score_plugins=[ RandomSelectionPlugin() ],
             commit_plugin=create_default_commit_plugin(),
@@ -181,7 +181,7 @@ class ExperimentBuilder:
 
     def create_roundrobin_scheduler_plugins(self, total_nodes: int) -> SchedulerPluginsConfig:
         return SchedulerPluginsConfig(
-            select_candidate_nodes_plugin=create_default_candidate_nodes_plugin(),
+            select_candidate_nodes_plugin=SelectAllNodesPlugin(),
             filter_plugins=[ ResourcesFitPlugin() ],
             score_plugins=[ RoundRobinPlugin(total_nodes) ],
             commit_plugin=create_default_commit_plugin(),
