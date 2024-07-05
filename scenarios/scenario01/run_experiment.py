@@ -4,9 +4,9 @@ RESULTS_CSV_PREFIX = 'results'
 
 NODE_COUNTS = [
     NodeCounts(satellites=1000, edge_nodes=100, ground_stations=10),
-    NodeCounts(satellites=1500, edge_nodes=150, ground_stations=15),
     NodeCounts(satellites=2000, edge_nodes=200, ground_stations=20),
-    NodeCounts(satellites=2500, edge_nodes=250, ground_stations=25),
+    NodeCounts(satellites=3000, edge_nodes=300, ground_stations=30),
+    NodeCounts(satellites=4000, edge_nodes=400, ground_stations=40),
 ]
 
 def run_experiment(path_to_scenario_dir: str = '.'):

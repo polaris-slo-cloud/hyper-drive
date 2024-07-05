@@ -4,7 +4,7 @@ from scheduler.plugins import HeatOptPlugin, MultiCommitPlugin, NetworkQosPlugin
 def create_default_candidate_nodes_plugin() -> SelectCandidateNodesPlugin:
     return SelectNodesInVicinityPlugin(
         radius_ground_km=500.0,
-        radius_edge_km=100,
+        radius_edge_km=200,
         radius_space_km=2000,
         ground_nodes_count=120,
         edge_nodes_count=120,

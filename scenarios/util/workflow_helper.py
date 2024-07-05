@@ -64,7 +64,7 @@ def create_wildfire_detection_wf(eo_sat_node: Node) -> WildfireDetectionWorkflow
             ResourceType.MEMORY_MIB: 2048,
         },
         data_source_slos=[
-            DataSourceSLO(data_source=eo_sat_node, max_latency_msec=150, min_bandwidth_kpbs=None)
+            DataSourceSLO(data_source=eo_sat_node, max_latency_msec=175, min_bandwidth_kpbs=None)
         ],
         expected_exec_time_msec={
             CpuArchitecture.ARM64: 600000,
