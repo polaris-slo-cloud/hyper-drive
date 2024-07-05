@@ -26,11 +26,15 @@ class SchedulingResult:
 
 
 @dataclass
-class SchedulerConfig:
+class SchedulerPluginsConfig:
     select_candidate_nodes_plugin: SelectCandidateNodesPlugin
     filter_plugins: list[FilterPlugin]
     score_plugins: list[ScorePlugin]
     commit_plugin: CommitPlugin
+
+
+@dataclass
+class SchedulerConfig(SchedulerPluginsConfig):
     orchestrator_client: OrchestratorClient
 
 

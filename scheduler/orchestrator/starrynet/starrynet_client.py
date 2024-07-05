@@ -22,7 +22,7 @@ class StarryNetClient(OrchestratorClient):
 
 
     def get_latency(self, src: Node, dest: Node) -> float:
-        graph = self.__get_network_graph()
+        graph = self.get_network_graph()
         path: list[int]
         try:
             path = cast(list[int], nx.shortest_path(graph, int(src.name), int(dest.name), 'latency'))
@@ -50,7 +50,7 @@ class StarryNetClient(OrchestratorClient):
         return self.__sat_positions[int(node.name)]
 
 
-    def __get_network_graph(self) -> nx.Graph:
+    def get_network_graph(self) -> nx.Graph:
         if self.__network_graph_time != self.__time_svc.curr_time:
             self.__update_network_graph()
         return self.__network_graph

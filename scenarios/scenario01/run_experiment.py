@@ -1,8 +1,10 @@
+import math
 from typing import cast
 from scenarios.util import ExperimentHelper, create_wildfire_detection_wf, write_results_to_csv
 from scheduler import SchedulingResult
 
 RESULTS_CSV = 'results.csv'
+NODES_PER_CONTINUUM_DIMENSION = 1000
 
 def run_experiment(path_to_scenario_dir: str = '.'):
     # The configuration file has 72 Starlink orbital planes configured.
@@ -13,7 +15,12 @@ def run_experiment(path_to_scenario_dir: str = '.'):
     # Locations of the explicitly configured edge nodes.
     # The locations of the rest up to edge_nodes_count is placed randomly within the edge_nodes_location_bounds.
     edge_lat_long = [
-        (39.493917, -122.981303), # Drone flying over Mendocino National Forest in California, USA, an area prone to wildfires (https://www.capradio.org/articles/2022/12/15/new-wildfire-risk-map-suggests-california-communities-increasingly-vulnerable/).
+        # Drones flying over Mendocino National Forest in California, USA, an area prone to wildfires (https://www.capradio.org/articles/2022/12/15/new-wildfire-risk-map-suggests-california-communities-increasingly-vulnerable/).
+        (39.493917, -122.981303),
+        (39.525713, -123.000053),
+        (39.424175, -122.923482),
+        (39.590260, -122.987340),
+        (39.530706, -123.102010),
     ]
 
     # Locations of the explicitly configured ground station nodes.
@@ -25,15 +32,19 @@ def run_experiment(path_to_scenario_dir: str = '.'):
 
     config_file_path = f'{path_to_scenario_dir}/config.json'
     exp_helper = ExperimentHelper()
-    experiment = exp_helper.init_experiment(
-        config_path=config_file_path,
-        sats_per_orbit=5,
-        edge_nodes_count=5,
-        gs_nodes_count=5,
+    sn_setup = exp_helper.init_starrynet(
+         config_path=config_file_path,
+        sats_per_orbit=int(math.ceil(NODES_PER_CONTINUUM_DIMENSION / 72.0)),
+        edge_nodes_count=NODES_PER_CONTINUUM_DIMENSION,
+        gs_nodes_count=NODES_PER_CONTINUUM_DIMENSION,
         gs_locations_lat_long=gs_lat_long,
         edge_node_locations_lat_long=edge_lat_long,
         edge_nodes_location_bounds=((41.990495, -124.218537), (32.729169, -114.613391)),
         gs_nodes_location_bounds=((90.0, 180.0), (-90.0, -180.0)),
+    )
+    experiment = exp_helper.init_experiment(
+        sn_setup=sn_setup,
+        scheduler_plugins=exp_helper.create_hyperdrive_scheduler_plugins(),
     )
     scheduler = experiment.scheduler
     sn_time_svc = experiment.sn_time_svc
@@ -53,6 +64,11 @@ def run_experiment(path_to_scenario_dir: str = '.'):
     prev_task = [ wf.start ]
 
     def schedule_next_task_fn(curr_time: int):
+        # Ensure that the network graph is up to date.
+        # Since the graph would normally be updated in the background, we don't want the reading of the delay file and the graph update
+        # as a bias in the scheduling time.
+        experiment.sn_client.get_network_graph()
+
         task = wf.get_successors(prev_task[0])[0]
         result = scheduler.schedule(task, wf)
         scheduling_results.append(result)
@@ -84,4 +100,5 @@ def run_experiment(path_to_scenario_dir: str = '.'):
 
 
 if __name__ == '__main__':
-    run_experiment()
+    print('Please import and execute the run_experiment() function from the root directory of the project to ensure that the imports work correctly.')
+    exit(1)
