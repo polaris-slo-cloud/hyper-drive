@@ -52,7 +52,7 @@ class WildfireDetSchedulingQualityExperiment:
     def run_scheduling_quality_experiment(self, scheduler_plugins: SchedulerPluginsConfig, results_csv: str):
         experiment = self.__exp_builder.init_experiment(
             sn_setup=self.__sn_setup,
-            scheduler_plugins=self.__exp_builder.create_hyperdrive_scheduler_plugins(),
+            scheduler_plugins=scheduler_plugins,
         )
         scheduler = experiment.scheduler
         sn_time_svc = experiment.sn_time_svc
