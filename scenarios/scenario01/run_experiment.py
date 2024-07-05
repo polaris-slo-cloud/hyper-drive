@@ -1,6 +1,6 @@
 import math
 from typing import cast
-from scenarios.util import ExperimentHelper, create_wildfire_detection_wf, write_results_to_csv
+from scenarios.util import ExperimentBuilder, create_wildfire_detection_wf, write_results_to_csv
 from scheduler import SchedulingResult
 
 RESULTS_CSV = 'results.csv'
@@ -31,7 +31,7 @@ def run_experiment(path_to_scenario_dir: str = '.'):
     ]
 
     config_file_path = f'{path_to_scenario_dir}/config.json'
-    exp_helper = ExperimentHelper()
+    exp_helper = ExperimentBuilder()
     sn_setup = exp_helper.init_starrynet(
          config_path=config_file_path,
         sats_per_orbit=int(math.ceil(NODES_PER_CONTINUUM_DIMENSION / 72.0)),

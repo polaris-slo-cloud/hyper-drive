@@ -31,7 +31,7 @@ class Experiment:
     scheduler: Scheduler
 
 
-class ExperimentHelper:
+class ExperimentBuilder:
 
     def __init__(self, random_seed: int = 1):
         self.__random_seed = random_seed
