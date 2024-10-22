@@ -15,7 +15,9 @@ HyperDrive places functions on Cloud, Edge, or Space
 compute nodes, based on their availability and ability to meet the
 SLO requirements of the workflow.
 
-This is the source code repository with the HyperDrive scheduler simulator from the following academic publication:
+This is the source code repository with the HyperDrive scheduler simulator from our academic publication “HyperDrive: Scheduling Serverless Functions in the Edge-Cloud-Space 3D Continuum,” which has been accepted for presentation at the 2024 IEEE/ACM Symposium on Edge Computing (SEC).
+Details on the architecture and the algorithms can be found in the [paper](https://arxiv.org/abs/2410.16026).
+If you would like to cite our work, you can copy the plain text or the BibTeX citation below:
 
 ```
 T. Pusztai, C. Marcelino, and S. Nastic, “HyperDrive: Scheduling Serverless Functions in the Edge-Cloud-Space 3D Continuum,” in 2024 IEEE/ACM Symposium on Edge Computing (SEC), 2024.
